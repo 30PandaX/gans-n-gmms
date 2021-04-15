@@ -256,8 +256,8 @@ class Timer(object):
 
 
 def get_dataset_mean_and_std(image_provider, num_samples=20000):
-    mean_file_name = os.path.join(image_provider.image_folder, '../training_mean.npy')
-    std_file_name = os.path.join(image_provider.image_folder, '../training_sgd.npy')
+    mean_file_name = 'training_mean.npy'
+    std_file_name = 'training_sgd.npy'
     if not os.path.isfile(mean_file_name):
         print('Calculating dataset mean and std...')
         samples = image_provider.get_random_samples(num_samples)

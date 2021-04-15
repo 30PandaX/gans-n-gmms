@@ -4,8 +4,10 @@ import numpy as np
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '..')))
 from utils import mfa
 import math
-import tensorflow as tf
-from tensorflow.contrib.framework import list_variables
+# import tensorflow as tf
+import tensorflow.compat.v1 as tf
+tf.disable_v2_behavior()
+# from tensorflow.contrib.framework import list_variables
 
 
 def init_raw_parms_np(K, d, l):

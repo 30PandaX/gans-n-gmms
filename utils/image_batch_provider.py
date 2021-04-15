@@ -22,12 +22,16 @@ class ImageBatchProvider:
 
         if list_file:
             # Split to train/test according to a list file
-            image_set = {}
-            with open(list_file) as f:
-                for line in f:
-                    image_set[line.split(' ')[0]] = int(line.split(' ')[1])
-            self.train_image_list = [im for im, cat in sorted(image_set.items()) if cat == 0]
-            self.test_image_list = [im for im, cat in sorted(image_set.items()) if cat == 1]
+            # Reading the np array from file:
+            with open(list_file, 'rb') as f:
+                X = np.load(f)
+            # flatten RGB 3D to 1D
+            X = np.asarray(X).flatten().reshape(len(X), 32 * 32 * 3)
+            # divide test and train set
+            num_train = int(len(X) * 0.7)
+            num_test = len(X) - num_train
+            self.train_image_list = X[:num_train]
+            self.test_image_list = X[num_train:]
         else:
             if os.path.isfile(os.path.join(image_folder, 'train.mat')):
                 print('Preloading images from mat files...')
@@ -57,7 +61,7 @@ class ImageBatchProvider:
                 self.train_image_list = [all_images[i] for i in np.nditer(rand_order[num_test_images:])]
 
 
-        assert len(set(self.test_image_list).intersection(self.train_image_list)) == 0
+        # assert len(set(self.test_image_list).intersection(self.train_image_list)) == 0
         self.num_test_images = len(self.test_image_list)
         self.num_train_images = len(self.train_image_list)
         self.mirror = mirror
@@ -135,6 +139,7 @@ class ImageBatchProvider:
 
     def _collect_batch_data(self, image_list, image_indices):
         m = image_indices.size
+        return image_list[:m]
         mb_data = None
         for i in range(m):
             mirror_image = False

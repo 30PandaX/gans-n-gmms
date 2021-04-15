@@ -23,7 +23,7 @@ def main(argv):
     parser.add_argument('--latent_dimension', help='Dimension of input factors z', default=10)
     args = parser.parse_args()
 
-    image_shape = (64, 64)
+    image_shape = (32, 32)
     batch_size = 256
     test_size = batch_size*10
     image_provider = image_batch_provider.ImageBatchProvider(args.dataset_dir,
@@ -31,7 +31,7 @@ def main(argv):
                                                              crop_bbox=(25, 50, 128, 128),
                                                              flatten=True,
                                                              batch_size=batch_size,
-                                                             list_file=os.path.join(args.dataset_dir, '../list_eval_partition.txt'))
+                                                             list_file='../braindecoder/vectorized_images_32.npy')
     output_folder = os.path.join(args.output_dir, 'celeba_mfa_{}c_{}l'.format(args.num_components, args.latent_dimension))
     print('Running MFA Teaining. Output folder is', output_folder)
     os.makedirs(output_folder, exist_ok=True)
