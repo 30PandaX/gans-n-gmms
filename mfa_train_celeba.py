@@ -31,7 +31,7 @@ def main(argv):
                                                              crop_bbox=(25, 50, 128, 128),
                                                              flatten=True,
                                                              batch_size=batch_size,
-                                                             list_file=os.path.join(args.dataset_dir, '../list_eval_partition.txt'))
+                                                             list_file='../braindecoder/vectorized_images_32.npy')
     output_folder = os.path.join(args.output_dir, 'celeba_mfa_{}c_{}l'.format(args.num_components, args.latent_dimension))
     print('Running MFA Teaining. Output folder is', output_folder)
     os.makedirs(output_folder, exist_ok=True)

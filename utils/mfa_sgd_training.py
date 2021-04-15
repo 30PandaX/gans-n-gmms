@@ -41,8 +41,7 @@ def train(num_components, latent_dimension, init_method='km',
         test_size = test_set.shape[0]
 
     # Reset everything so that variables will not accumulate from previous run
-    tf.reset_default_graph()
-
+    tf.compat.v1.reset_default_graph()
     if not init_gmm:
         print('Initial guess...')
         if init_whiten:
@@ -68,7 +67,9 @@ def train(num_components, latent_dimension, init_method='km',
     G_PI, G_MU, G_A, G_D = mfa_tf.init_raw_parms_from_gmm(init_gmm)
     theta_G = [G_PI, G_MU, G_A, G_D]
 
-    X = tf.placeholder(tf.float32, shape=[None, d])
+    tf.compat.v1.disable_eager_execution()
+    X = tf.compat.v1.placeholder(tf.float32, shape=[None, d])
+    # X = tf.placeholder(tf.float32, shape=[None, d])
 
     G_loss = -1.0 * mfa_tf.get_log_likelihood(X, *theta_G)
     G_solver = tf.train.AdamOptimizer(learning_rate=learning_rate).minimize(G_loss, var_list=theta_G)
