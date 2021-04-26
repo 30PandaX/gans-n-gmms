@@ -82,6 +82,7 @@ def kmeans_clustering(samples, num_clusters, get_centers=False):
 
 def gmm_initial_guess(samples, num_components, latent_dim, clustering_method='km', component_model='fa',
                       default_noise_std=0.5, dataset_std=1.0):
+    print(samples.shape)
     N, d = samples.shape
     components = {}
     if clustering_method == 'rnd':

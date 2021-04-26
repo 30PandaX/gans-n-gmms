@@ -1,9 +1,11 @@
 import numpy as np
+import pandas as pd
 import cv2
 import os
 import scipy.io as sio
 import struct
 import pickle
+from sklearn.model_selection import train_test_split
 
 class ImageBatchProvider:
     def __init__(self, image_folder=None, output_size=None, flatten=False, float_output=True, mirror=True,
@@ -33,32 +35,25 @@ class ImageBatchProvider:
             self.train_image_list = X[:num_train]
             self.test_image_list = X[num_train:]
         else:
-            if os.path.isfile(os.path.join(image_folder, 'train.mat')):
-                print('Preloading images from mat files...')
-                self.train_images, self.train_image_list = self._load_images_from_mat(os.path.join(image_folder, 'train.mat'), 'train')
-                self.test_images, self.test_image_list = self._load_images_from_mat(os.path.join(image_folder, 'test.mat'), 'test')
-            elif os.path.isfile(os.path.join(image_folder, 'train.ubyte')):
-                print('Preloading images from binary files...')
-                self.train_images, self.train_image_list = self._load_images_from_ubyte(os.path.join(image_folder, 'train.ubyte'), 'train')
-                self.test_images, self.test_image_list = self._load_images_from_ubyte(os.path.join(image_folder, 'test.ubyte'), 'test')
-            elif os.path.isfile(os.path.join(image_folder, 'test_batch')):
-                print('Preloading CIFAR data...')
-                self.train_images, self.train_image_list = self._load_cifar_images(image_folder, 'data_batch', class_list, 'train')
-                self.test_images, self.test_image_list = self._load_cifar_images(image_folder, 'test_batch', class_list, 'test')
+            img_paths_cleaned = []
+            non_exist = []
+            if not os.path.isfile('img_paths.npy'):
+                root = "/share/sablab/nfs04/data/fmri_on_celeba/stimuli"
+                txt_path = root + "/ImageNames2Celeba.txt"
+                img_paths = pd.read_csv(txt_path, delimiter = '\t', names = ['path', 'img_ID']).drop_duplicates(subset=['img_ID'])[['path']]
+                img_paths_list = img_paths.values.flatten()
+                for path in img_paths_list:
+                    img_path = root + '/' + path
+                    if os.path.isfile(img_path):
+                        img_paths_cleaned.append(path)
+                img_paths_cleaned = np.asarray(img_paths_cleaned)
+                with open('img_paths.npy', 'wb') as f:
+                    np.save(f, img_paths_cleaned)
             else:
-                # Split to train/test randomly
-                if file_suffix is None:
-                    all_images = sorted([img for img in os.listdir(image_folder) if img.lower().endswith(('.png', '.jpg', '.jpeg'))])
-                else:
-                    all_images = sorted([img for img in os.listdir(image_folder) if img.endswith(file_suffix)])
-                m = len(all_images)
-                num_test_images = min(max_test_set_size, int(m*test_set_ratio))
-                rand_order = np.random.permutation(m)
-                if num_test_images > 0:
-                    self.test_image_list = [all_images[i] for i in np.nditer(rand_order[:num_test_images])]
-                else:
-                    self.test_image_list = []
-                self.train_image_list = [all_images[i] for i in np.nditer(rand_order[num_test_images:])]
+                # Reading the np array from file:
+                with open('img_paths.npy', 'rb') as f:
+                    img_paths_cleaned = np.load(f)
+            self.train_image_list, self.test_image_list = train_test_split(img_paths_cleaned, test_size=0.2, random_state=0)
 
 
         # assert len(set(self.test_image_list).intersection(self.train_image_list)) == 0
@@ -139,8 +134,8 @@ class ImageBatchProvider:
 
     def _collect_batch_data(self, image_list, image_indices):
         m = image_indices.size
-        return image_list[:m]
         mb_data = None
+        root = "/share/sablab/nfs04/data/fmri_on_celeba/stimuli"
         for i in range(m):
             mirror_image = False
             img_name = image_list[image_indices[i]]
@@ -154,9 +149,9 @@ class ImageBatchProvider:
             else:
                 assert self.train_images is None and self.test_images is None
                 if self.read_as_gray:
-                    img = cv2.imread(os.path.join(self.image_folder, img_name), cv2.IMREAD_GRAYSCALE)
+                    img = cv2.imread(root + '/' + img_name, cv2.IMREAD_GRAYSCALE)
                 else:
-                    img = cv2.imread(os.path.join(self.image_folder, img_name))
+                    img = cv2.imread(root + '/' + img_name)
                     img = cv2.cvtColor(img, cv2.COLOR_RGB2BGR)
             img = self._process_image(img, mirror_image=mirror_image)
             if mb_data is None:
