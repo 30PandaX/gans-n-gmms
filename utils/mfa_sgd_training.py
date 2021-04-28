@@ -52,6 +52,7 @@ def train(num_components, latent_dimension, init_method='km',
         else:
             init_std = 1.0
         init_samples_per_comp = 300
+        print("type = ", type(num_components))
         init_n = min(image_provider.num_train_images, max(num_components * init_samples_per_comp, 10000))
         print('Collecting an initial sample of', init_n, 'samples...')
         init_samples = image_provider.get_random_samples(init_n)

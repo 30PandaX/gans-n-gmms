@@ -18,9 +18,9 @@ def main(argv):
     parser = argparse.ArgumentParser()
     parser.add_argument('--dataset_dir', default='../../Datasets/CelebA/img_align_celeba')
     parser.add_argument('--output_dir', help='Parent directory for storing all trained models', default='./restuls')
-    parser.add_argument('--num_components', help='Number of (root level) mixture components', default=200)
-    parser.add_argument('--samples_per_sub_component', help='For hierarchic (two-level) training, target number of samples per final component', default=400)
-    parser.add_argument('--latent_dimension', help='Dimension of input factors z', default=10)
+    parser.add_argument('--num_components', help='Number of (root level) mixture components', type=int, default=200)
+    parser.add_argument('--samples_per_sub_component', help='For hierarchic (two-level) training, target number of samples per final component', type=int, default=400)
+    parser.add_argument('--latent_dimension', help='Dimension of input factors z', type=int, default=10)
     args = parser.parse_args()
 
     image_shape = (32, 32)
