@@ -46,6 +46,7 @@ def main(argv):
         gmm_model = mfa.MFA()
         gmm_model.load(os.path.join(output_folder, 'final_gmm'))
 
+    '''
     # Hierarchic training...
     if args.samples_per_sub_component > 0:
         print('Now splitting each root component to sub-components...')
@@ -90,7 +91,7 @@ def main(argv):
 
         print('Creating the final flat model...')
         flatten_hierarchic_model(gmm_model, output_folder)
-
+    '''
     print('Done')
 
 if __name__ == "__main__":

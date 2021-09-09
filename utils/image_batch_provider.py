@@ -23,8 +23,8 @@ class ImageBatchProvider:
         self.read_as_gray = read_as_gray
 
         if list_file:
-            # Split to train/test according to a list file
-            # Reading the np array from file:
+             # Split to train/test according to a list file
+             # Reading the np array from file:
             with open(list_file, 'rb') as f:
                 X = np.load(f)
             # flatten RGB 3D to 1D
@@ -34,6 +34,14 @@ class ImageBatchProvider:
             num_test = len(X) - num_train
             self.train_image_list = X[:num_train]
             self.test_image_list = X[num_train:]
+        #if list_file:
+            # Split to train/test according to a list file
+         #   image_set = {}
+         #   with open(list_file) as f:
+         #       for line in f:
+         #           image_set[line.split(' ')[0]] = int(line.split(' ')[1])
+         #   self.train_image_list = [im for im, cat in sorted(image_set.items()) if cat == 0]
+         #   self.test_image_list = [im for im, cat in sorted(image_set.items()) if cat == 1]
         else:
             img_paths_cleaned = []
             non_exist = []
