@@ -1,3 +1,17 @@
 
 *.xml
 .idea/gans-n-gmms.iml
+training_mean.npy
+training_sgd.npy
+utils/__pycache__/hierarchic_mfa_utils.cpython-39.pyc
+utils/__pycache__/image_batch_provider.cpython-39.pyc
+utils/__pycache__/mfa_sgd_training.cpython-39.pyc
+utils/__pycache__/mfa_tf.cpython-39.pyc
+utils/__pycache__/mfa_utils.cpython-39.pyc
+utils/__pycache__/mfa.cpython-39.pyc
+restuls/celeba_mfa_200c_10l/init_gmm.pkl
+restuls/celeba_mfa_200c_10l/model/checkpoint
+restuls/celeba_mfa_200c_10l/log.csv
+restuls/celeba_mfa_200c_10l/model/gmm_model.data-00000-of-00001
+restuls/celeba_mfa_200c_10l/model/gmm_model.index
+restuls/celeba_mfa_200c_10l/model/gmm_model.meta
