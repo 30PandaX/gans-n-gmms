@@ -82,7 +82,6 @@ def kmeans_clustering(samples, num_clusters, get_centers=False):
 
 def gmm_initial_guess(samples, num_components, latent_dim, clustering_method='km', component_model='fa',
                       default_noise_std=0.5, dataset_std=1.0):
-    print(samples.shape)
     N, d = samples.shape
     components = {}
     if clustering_method == 'rnd':
@@ -256,12 +255,15 @@ class Timer(object):
         print('%s took: %s sec' % (self.name, time.time() - self.tstart))
 
 
-def get_dataset_mean_and_std(image_provider, num_samples=20000):
+def get_dataset_mean_and_std(image_provider, num_samples=20000, concatenated_vectors=[]):
     mean_file_name = 'training_mean.npy'
     std_file_name = 'training_sgd.npy'
     if not os.path.isfile(mean_file_name):
         print('Calculating dataset mean and std...')
-        samples = image_provider.get_random_samples(num_samples)
+        #samples = image_provider.get_random_samples(num_samples)
+        temp_random_index = np.random.choice(len(concatenated_vectors), num_samples)
+        samples = [concatenated_vectors[i] for i in temp_random_index]
+        samples = np.array(samples)
         dataset_mean = np.mean(samples, axis=0)
         dataset_std = np.std(samples - dataset_mean, axis=0)
         np.save(mean_file_name, dataset_mean)

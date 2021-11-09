@@ -1,0 +1,8 @@
+Starting image batch provider for ../../Datasets/CelebA/img_align_celeba - 23416/5854 (train/test) images.
+@Running MFA Teaining. Output folder is ./concatenated_64_results/celeba_mfa_1c_10l
+Initial guess...
+init_std [6.98466565e-05 6.79919445e-05 6.99728112e-05 ... 4.65365272e-01
+ 5.17270204e-01 4.77928027e-01]
+type =  <class 'int'>
+Collecting an initial sample of 10000 samples...
+(10000, 17605)

@@ -23,7 +23,8 @@ def main(argv):
     parser.add_argument('--latent_dimension', help='Dimension of input factors z', type=int, default=10)
     args = parser.parse_args()
 
-    image_shape = (32, 32)
+    # image_shape = (32, 32)
+    image_shape = (args.output_dir[-2:], args.output_dir[-2:])
     batch_size = 256
     test_size = batch_size*10
     image_provider = image_batch_provider.ImageBatchProvider(args.dataset_dir,

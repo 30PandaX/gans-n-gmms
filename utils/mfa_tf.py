@@ -27,9 +27,11 @@ def init_raw_parms_from_gmm(gmm, prefix=''):
     K = len(gmm.components)
     d, l = gmm.components[0]['A'].shape
     N_PI, N_MU, N_A, N_D = init_raw_parms_np(K, d, l)
+    print(f"k={K}, d={d}, l={l}")
     for i, c in gmm.components.items():
         N_PI[i] = np.log(c['pi'])
         N_MU[i, ...] = c['mu']
+        print("N_A[i, ...] = c['A']", N_A.shape, c['A'].shape)
         N_A[i, ...] = c['A']
         if 's' in c.keys():
             N_D[i, ...] = np.sqrt(c['s'])
@@ -48,6 +50,9 @@ def raw_to_gmm(PI, MU, A, D, raw_as_log=False):
             components[i] = {'pi': pi_vals[i], 'mu': MU[i, ...], 'A': A[i, ...], 'D': np.exp(-1.0 * D[i])}
         else:
             components[i] = {'pi': pi_vals[i], 'mu': MU[i, ...], 'A': A[i, ...], 'D': np.power(D[i], 2.0)}
+    # os.makedirs(os.path.dirname('/components_dict'), exist_ok=True)
+    # np.save(f'components_dict/{K}_components.npy', components)
+    np.save(f'{K}_components.npy', components)
     return mfa.MFA(components)
 
 

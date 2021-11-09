@@ -14,6 +14,7 @@ from utils import mfa
 from utils import mfa_utils
 from utils import mfa_tf
 from utils import image_batch_provider
+from sklearn.model_selection import train_test_split
 
 
 def train(num_components, latent_dimension, init_method='km',
@@ -39,6 +40,9 @@ def train(num_components, latent_dimension, init_method='km',
     :param out_folder: Folder to write model and debug images to
     :return: The resulting GMM model
     """
+    concatenated_vectors = np.load(f"/home/px48/gans-n-gmms/fmri/concatenated_vectors_{image_shape[0]}.npy")
+    train_image_list, test_image_list = train_test_split(concatenated_vectors, test_size=0.2, random_state=0)
+
     if test_set is not None:
         test_size = test_set.shape[0]
 
@@ -48,19 +52,24 @@ def train(num_components, latent_dimension, init_method='km',
     if not init_gmm:
         print('Initial guess...')
         if init_whiten:
-            _, init_std = mfa_utils.get_dataset_mean_and_std(image_provider)
+            _, init_std = mfa_utils.get_dataset_mean_and_std(image_provider, concatenated_vectors=concatenated_vectors)
         else:
             init_std = 1.0
         init_samples_per_comp = 300
-        print("type = ", type(num_components))
-        init_n = min(image_provider.num_train_images, max(num_components * init_samples_per_comp, 10000))
+        print(f"type = , {type(num_components)}, size = {num_components}")
+        #init_n = min(image_provider.num_train_images, max(num_components * init_samples_per_comp, 10000))
+        # init_n = min(len(train_image_list), max(num_components * init_samples_per_comp, 10000))
+        init_n = max(num_components * init_samples_per_comp, 10000)
         print('Collecting an initial sample of', init_n, 'samples...')
-        init_samples = image_provider.get_random_samples(init_n)
+        #init_samples = image_provider.get_random_samples(init_n)
+        temp_random_index = np.random.choice(len(concatenated_vectors), init_n)
+        init_samples = [concatenated_vectors[i] for i in temp_random_index]
+        init_samples = np.array(init_samples)
         init_gmm = mfa_utils.gmm_initial_guess(init_samples, num_components, latent_dimension, clustering_method=init_method,
                                                component_model='fa', dataset_std=init_std, default_noise_std=0.15)
 
     if training_whiten:
-        training_dataset_mean, training_dataset_std = mfa_utils.get_dataset_mean_and_std(image_provider)
+        training_dataset_mean, training_dataset_std = mfa_utils.get_dataset_mean_and_std(image_provider, concatenated_vectors=concatenated_vectors)
     else:
         training_dataset_mean, training_dataset_std = (0.0, 1.0)
 
@@ -86,7 +95,10 @@ def train(num_components, latent_dimension, init_method='km',
 
     def get_training_batches():
         while True:
-            samples = image_provider.get_next_minibatch_samples()
+            #samples = image_provider.get_next_minibatch_samples()
+            temp_random_index = np.random.choice(len(train_image_list), batch_size)
+            samples = [train_image_list[i] for i in temp_random_index]
+            samples = np.array(samples)
             samples = (samples - training_dataset_mean) / training_dataset_std
             yield samples
     training_batch_generator = get_training_batches()
@@ -95,7 +107,10 @@ def train(num_components, latent_dimension, init_method='km',
     sess.run(tf.global_variables_initializer())
 
     if test_size > 0 and test_set is None:
-        test_set = image_provider.get_test_samples(test_size)
+        #test_set = image_provider.get_test_samples(test_size)
+        temp_random_index = np.random.choice(len(test_image_list), test_size)
+        test_set = [test_image_list[i] for i in temp_random_index]
+        test_set = np.array(test_set)
 
     print('Starting Mixture of Factor Analyzers ML SGD Training ({} iterations)...'.format(max_iters))
     test_step = 100
@@ -113,8 +128,8 @@ def train(num_components, latent_dimension, init_method='km',
             print('[visualizing]', end='', flush=True)
             c_PI, c_MU, c_A, c_D = sess.run([G_PI, G_MU, G_A, G_D])
             est_gmm = mfa_tf.raw_to_gmm(c_PI, c_MU, c_A, c_D)
-            mfa_utils.visualize_trained_model(est_gmm, it, out_folder=out_images_folder, image_shape=image_shape,
-                                              mean=training_dataset_mean, std=training_dataset_std)
+            # mfa_utils.visualize_trained_model(est_gmm, it, out_folder=out_images_folder, image_shape=image_shape,
+            #                                   mean=training_dataset_mean, std=training_dataset_std)
 
         print('.', end='', flush=True)
 

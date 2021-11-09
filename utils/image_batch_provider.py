@@ -50,6 +50,7 @@ class ImageBatchProvider:
                 txt_path = root + "/ImageNames2Celeba.txt"
                 img_paths = pd.read_csv(txt_path, delimiter = '\t', names = ['path', 'img_ID']).drop_duplicates(subset=['img_ID'])[['path']]
                 img_paths_list = img_paths.values.flatten()
+                # Validate if the image exist in the sablab diretory. 
                 for path in img_paths_list:
                     img_path = root + '/' + path
                     if os.path.isfile(img_path):
@@ -61,8 +62,13 @@ class ImageBatchProvider:
                 # Reading the np array from file:
                 with open('img_paths.npy', 'rb') as f:
                     img_paths_cleaned = np.load(f)
-            self.train_image_list, self.test_image_list = train_test_split(img_paths_cleaned, test_size=0.2, random_state=0)
+            # self.train_image_list, self.test_image_list = train_test_split(img_paths_cleaned, test_size=0.2, random_state=0)
+            img_size = output_size[0]
+            concatenated_vectors = np.load(f"/home/px48/gans-n-gmms/fmri/concatenated_vectors_{img_size}.npy")
+            self.train_image_list, self.test_image_list = train_test_split(concatenated_vectors, test_size=0.2, random_state=0)
 
+        # self-provided concatenated vectors
+        # img_fmri_vectors = np.load(f"/home/px48/gans-n-gmms/fmri/concatenated_vectors_{img_size}.npy")
 
         # assert len(set(self.test_image_list).intersection(self.train_image_list)) == 0
         self.num_test_images = len(self.test_image_list)
@@ -142,6 +148,8 @@ class ImageBatchProvider:
 
     def _collect_batch_data(self, image_list, image_indices):
         m = image_indices.size
+        return image_list[:m]
+
         mb_data = None
         root = "/share/sablab/nfs04/data/fmri_on_celeba/stimuli"
         for i in range(m):

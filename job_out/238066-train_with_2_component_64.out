@@ -1,0 +1,4 @@
+Starting image batch provider for ../../Datasets/CelebA/img_align_celeba - 23416/5854 (train/test) images.
+@Running MFA Teaining. Output folder is ./results_concatenated/celeba_mfa_2c_10l
+Loading pre-trained root model...
+Done
